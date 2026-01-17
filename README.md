@@ -7,6 +7,7 @@
 | 技能 | 描述 |
 |------|------|
 | [devtools](./devtools/) | DevTools 项目开发技能，遵循 DDD 领域驱动设计 |
+| [blog-sync](./blog-sync/) | 同步开发信息到 Hugo 博客 (blog.jaxiu.cn) |
 
 ## 安装方式
 
