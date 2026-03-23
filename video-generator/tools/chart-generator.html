@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>图表生成器</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea, #764ba2); padding: 20px; min-height: 100vh; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    header { text-align: center; color: white; padding: 30px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .panel { background: white; padding: 30px; border-radius: 15px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+    .form-group input { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; }
+    .btn { padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; margin-right: 10px; }
+    .btn:hover { background: #5568d3; }
+    canvas { max-width: 100%; }
+    .data-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .data-row input { flex: 1; }
+    .code-output { background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 8px; margin-top: 15px; font-family: monospace; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header><h1>📊 图表生成器</h1></header>
+    <div class="grid">
+      <div class="panel">
+        <h2>配置</h2>
+        <div class="form-group">
+          <label>标题</label>
+          <input type="text" id="title" value="销售数据">
+        </div>
+        <div class="form-group">
+          <label>类型</label>
+          <select id="type" onchange="generate()" style="width:100%;padding:10px;border-radius:8px;">
+            <option value="bar">柱状图</option>
+            <option value="line">折线图</option>
+            <option value="pie">饼图</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>数据</label>
+          <div id="data-rows">
+            <div class="data-row"><input class="label" value="一月"><input class="value" type="number" value="120"></div>
+            <div class="data-row"><input class="label" value="二月"><input class="value" type="number" value="150"></div>
+            <div class="data-row"><input class="label" value="三月"><input class="value" type="number" value="180"></div>
+          </div>
+          <button class="btn" onclick="addRow()">+ 添加</button>
+        </div>
+        <button class="btn" onclick="generate()">生成图表</button>
+        <button class="btn" onclick="copyCode()">复制代码</button>
+        <div class="code-output" id="code"></div>
+      </div>
+      <div class="panel"><canvas id="chart"></canvas></div>
+    </div>
+  </div>
+  <script>
+    let chart;
+    function getData() {
+      const labels=[], values=[];
+      document.querySelectorAll('.data-row').forEach(row=>{
+        labels.push(row.querySelector('.label').value);
+        values.push(parseFloat(row.querySelector('.value').value));
+      });
+      return {labels, values};
+    }
+    function addRow() {
+      const div=document.createElement('div');
+      div.className='data-row';
+      div.innerHTML='<input class="label" placeholder="标签"><input class="value" type="number" placeholder="数值">';
+      document.getElementById('data-rows').appendChild(div);
+    }
+    function generate() {
+      const {labels, values}=getData();
+      const type=document.getElementById('type').value;
+      const ctx=document.getElementById('chart').getContext('2d');
+      if(chart) chart.destroy();
+      chart=new Chart(ctx,{
+        type:type,
+        data:{labels:labels,datasets:[{label:document.getElementById('title').value,data:values,backgroundColor:['#ff6b6b','#48dbfb','#1dd1a1','#feca57','#5f27cd'],borderColor:'#667eea',borderWidth:2}]},
+        options:{responsive:true}
+      });
+      document.getElementById('code').textContent=`Templates.chartSlide({
+  title: '${document.getElementById('title').value}',
+  chartType: '${type}',
+  chartData: {
+    labels: ${JSON.stringify(labels)},
+    data: ${JSON.stringify(values)}
+  },
+  theme: 'tech'
+});`;
+    }
+    function copyCode() { navigator.clipboard.writeText(document.getElementById('code').textContent); alert('已复制!'); }
+    generate();
+  </script>
+</body>
+</html>
