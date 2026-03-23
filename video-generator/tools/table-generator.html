@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📋 视频表格生成器</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; padding: 20px; }
+    .container { max-width: 1400px; margin: 0 auto; }
+    header { text-align: center; color: white; padding: 30px 0; }
+    header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+    header p { color: rgba(255,255,255,0.7); }
+    
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .panel { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); }
+    .panel h2 { color: #48dbfb; margin-bottom: 20px; font-size: 1.3rem; }
+    
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; color: rgba(255,255,255,0.8); margin-bottom: 8px; font-size: 0.9rem; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 15px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 1rem; }
+    .form-group textarea { min-height: 100px; resize: vertical; font-family: monospace; }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #48dbfb; }
+    
+    .btn { padding: 12px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; margin-right: 10px; margin-top: 10px; transition: all 0.3s; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); }
+    .btn-secondary { background: rgba(255,255,255,0.1); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+    
+    /* 预览区 */
+    .preview { background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 100%); border-radius: 15px; padding: 40px; min-height: 400px; }
+    
+    /* 视频优化表格样式 */
+    .video-table { width: 100%; border-collapse: collapse; font-size: 28px; }
+    .video-table th { 
+      background: linear-gradient(135deg, rgba(255,107,107,0.3), rgba(254,202,87,0.2));
+      color: #feca57; 
+      padding: 20px 25px; 
+      text-align: left; 
+      font-weight: 600;
+      border-bottom: 2px solid rgba(254,202,87,0.3);
+    }
+    .video-table td { 
+      padding: 18px 25px; 
+      border-bottom: 1px solid rgba(255,255,255,0.08); 
+      color: white;
+    }
+    .video-table tr:hover td { background: rgba(255,255,255,0.03); }
+    .video-table .highlight { background: rgba(255,107,107,0.1); }
+    .video-table .highlight td { color: #ff6b6b; font-weight: bold; }
+    
+    /* 数据样式 */
+    .num { font-weight: bold; font-family: 'Roboto Mono', monospace; }
+    .up { color: #1dd1a1 !important; }
+    .down { color: #ff6b6b !important; }
+    .neutral { color: #48dbfb !important; }
+    
+    /* 主题切换 */
+    .theme-dark { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+    .theme-light { background: linear-gradient(135deg, #f5f5f5, #e0e0e0); color: #333; }
+    .theme-tech { background: linear-gradient(135deg, #0f0c29, #302b63); }
+    .theme-money { background: linear-gradient(135deg, #1a472a, #2d5a3d); }
+    
+    /* 代码输出 */
+    .code-output { background: #0d0d0d; color: #e2e8f0; padding: 20px; border-radius: 10px; margin-top: 20px; font-family: 'Fira Code', monospace; font-size: 0.85rem; max-height: 300px; overflow-y: auto; white-space: pre-wrap; }
+    
+    /* 快捷标签 */
+    .quick-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+    .quick-tag { padding: 6px 14px; background: rgba(102, 126, 234, 0.3); color: #48dbfb; border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+    .quick-tag:hover { background: rgba(102, 126, 234, 0.5); }
+    
+    /* 导入导出 */
+    .import-export { display: flex; gap: 10px; margin-top: 15px; }
+    .file-input { display: none; }
+    
+    /* 响应式 */
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      .video-table { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📋 视频表格生成器</h1>
+      <p>专为视频场景优化的大字号、高对比度表格</p>
+    </header>
+    
+    <div class="grid">
+      <!-- 配置面板 -->
+      <div class="panel">
+        <h2>⚙️ 表格配置</h2>
+        
+        <div class="form-group">
+          <label>快速模板</label>
+          <div class="quick-tags">
+            <span class="quick-tag" onclick="loadTemplate('finance')">📈 股市数据</span>
+            <span class="quick-tag" onclick="loadTemplate('compare')">⚖️ 对比分析</span>
+            <span class="quick-tag" onclick="loadTemplate('ranking')">🏆 排名榜单</span>
+            <span class="quick-tag" onclick="loadTemplate('timeline')">📅 时间线</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>表格标题</label>
+          <input type="text" id="tableTitle" value="市场数据" oninput="updatePreview()">
+        </div>
+        
+        <div class="form-group">
+          <label>主题风格</label>
+          <select id="theme" onchange="updatePreview()">
+            <option value="dark">深色主题</option>
+            <option value="tech">科技主题</option>
+            <option value="money">财经主题</option>
+            <option value="light">浅色主题</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>高亮行 (用逗号分隔，如: 1,3)</label>
+          <input type="text" id="highlightRows" value="1" placeholder="1,3,5" oninput="updatePreview()">
+        </div>
+        
+        <div class="form-group">
+          <label>数据格式 (JSON)</label>
+          <textarea id="tableData" oninput="updatePreview()">[
+  {"指标": "上证指数", "数值": "4,000", "涨跌幅": "-2.5%", "状态": "down"},
+  {"指标": "深证成指", "数值": "12,000", "涨跌幅": "-1.8%", "状态": "down"},
+  {"指标": "创业板", "数值": "2,500", "涨跌幅": "+0.5%", "状态": "up"},
+  {"指标": "沪深300", "数值": "3,800", "涨跌幅": "-1.2%", "状态": "down"}
+]</textarea>
+        </div>
+        
+        <button class="btn" onclick="updatePreview()">🔄 更新预览</button>
+        <button class="btn btn-secondary" onclick="copyCode()">📋 复制代码</button>
+        <button class="btn btn-secondary" onclick="exportHTML()">💾 导出HTML</button>
+        
+        <div class="import-export">
+          <input type="file" id="importFile" class="file-input" accept=".json,.csv" onchange="importData(event)">
+          <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📥 导入</button>
+        </div>
+      </div>
+      
+      <!-- 预览面板 -->
+      <div class="panel">
+        <h2>👁️ 预览 (1920×1080)</h2>
+        <div class="preview" id="preview">
+          <h3 id="previewTitle" style="color:#feca57;font-size:2rem;margin-bottom:25px;text-align:center;">市场数据</h3>
+          <div id="tableContainer"></div>
+        </div>
+        
+        <div style="margin-top:20px;">
+          <h3 style="color:#48dbfb;margin-bottom:10px;">HTML 代码</h3>
+          <div class="code-output" id="codeOutput"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // 模板数据
+    const TEMPLATES = {
+      finance: {
+        title: '📈 今日股市',
+        data: [
+          {"指标": "上证指数", "数值": "4,000", "涨跌幅": "-2.5%", "状态": "down"},
+          {"指标": "深证成指", "数值": "12,000", "涨跌幅": "-1.8%", "状态": "down"},
+          {"指标": "创业板", "数值": "2,500", "涨跌幅": "+0.5%", "状态": "up"},
+          {"指标": "沪深300", "数值": "3,800", "涨跌幅": "-1.2%", "状态": "down"}
+        ],
+        highlights: "1,4"
+      },
+      compare: {
+        title: '⚖️ 产品对比',
+        data: [
+          {"产品": "iPhone 16", "价格": "¥6,999", "销量": "50万部", "状态": ""},
+          {"产品": "Mate 70", "价格": "¥5,999", "销量": "45万部", "状态": ""},
+          {"产品": "Pixel 10", "价格": "¥4,999", "销量": "15万部", "状态": ""}
+        ],
+        highlights: ""
+      },
+      ranking: {
+        title: '🏆 TOP 10 榜单',
+        data: [
+          {"排名": "1", "名称": "ChatGPT", "分数": "98.5", "状态": "up"},
+          {"排名": "2", "名称": "Claude 4", "分数": "96.2", "状态": "up"},
+          {"排名": "3", "名称": "Gemini 2", "分数": "94.8", "状态": "down"},
+          {"排名": "4", "名称": "Llama 4", "分数": "91.3", "状态": "neutral"}
+        ],
+        highlights: "1"
+      },
+      timeline: {
+        title: '📅 今日要闻',
+        data: [
+          {"时间": "09:30", "事件": "A股开盘", "影响": "中性", "状态": "neutral"},
+          {"时间": "10:00", "事件": "发布GDP数据", "影响": "利好", "状态": "up"},
+          {"时间": "14:00", "事件": "美股期货跳水", "影响": "利空", "状态": "down"}
+        ],
+        highlights: "2"
+      }
+    };
+    
+    function loadTemplate(name) {
+      const t = TEMPLATES[name];
+      document.getElementById('tableTitle').value = t.title;
+      document.getElementById('highlightRows').value = t.highlights;
+      document.getElementById('tableData').value = JSON.stringify(t.data, null, 2);
+      updatePreview();
+    }
+    
+    function updatePreview() {
+      const title = document.getElementById('tableTitle').value;
+      const theme = document.getElementById('theme').value;
+      const highlightRows = document.getElementById('highlightRows').value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+      const data = JSON.parse(document.getElementById('tableData').value || '[]');
+      
+      // 更新预览标题
+      document.getElementById('previewTitle').textContent = title;
+      
+      // 更新预览主题
+      const preview = document.getElementById('preview');
+      preview.className = 'preview theme-' + theme;
+      
+      // 生成表格
+      if (data.length === 0) return;
+      
+      const headers = Object.keys(data[0]).filter(k => k !== '状态');
+      let html = '<table class="video-table"><thead><tr>';
+      headers.forEach(h => html += `<th>${h}</th>`);
+      html += '</tr></thead><tbody>';
+      
+      data.forEach((row, i) => {
+        const isHighlight = highlightRows.includes(i + 1);
+        html += `<tr class="${isHighlight ? 'highlight' : ''}">`;
+        headers.forEach(h => {
+          const val = row[h];
+          const status = row['状态'] || '';
+          const cls = status === 'up' ? 'up' : (status === 'down' ? 'down' : (status === 'neutral' ? 'neutral' : ''));
+          html += `<td class="${cls} num">${val}</td>`;
+        });
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      
+      document.getElementById('tableContainer').innerHTML = html;
+      
+      // 生成代码
+      const code = generateHTMLCode(title, theme, headers, data, highlightRows);
+      document.getElementById('codeOutput').textContent = code;
+    }
+    
+    function generateHTMLCode(title, theme, headers, data, highlights) {
+      const themeStyles = {
+        dark: '#1a1a2e',
+        tech: '#0f0c29',
+        money: '#1a472a',
+        light: '#f5f5f5'
+      };
+      
+      let code = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>${title}</title>
+  <style>
+    body { 
+      font-family: 'Microsoft YaHei', sans-serif; 
+      background: ${themeStyles[theme]}; 
+      padding: 40px; 
+    }
+    .video-table { width: 100%; border-collapse: collapse; font-size: 28px; }
+    .video-table th { 
+      background: rgba(255,107,107,0.3); color: #feca57; 
+      padding: 20px; text-align: left; 
+    }
+    .video-table td { padding: 18px; border-bottom: 1px solid rgba(255,255,255,0.1); color: white; }
+    .video-table .highlight { background: rgba(255,107,107,0.15); }
+    .up { color: #1dd1a1; }
+    .down { color: #ff6b6b; }
+    .neutral { color: #48dbfb; }
+  </style>
+</head>
+<body>
+  <h2 style="color:#feca57;text-align:center;margin-bottom:30px;">${title}</h2>
+  <table class="video-table">
+    <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+    <tbody>
+${data.map((row, i) => {
+  const isHL = highlights.includes(i + 1);
+  return `      <tr${isHL ? ' class="highlight"' : ''}>${headers.map(h => {
+    const val = row[h];
+    const st = row['状态'] || '';
+    const cls = st === 'up' ? ' class="up"' : (st === 'down' ? ' class="down"' : (st === 'neutral' ? ' class="neutral"' : ''));
+    return `<td${cls}>${val}</td>`;
+  }).join('')}</tr>`;
+}).join('\n')}
+    </tbody>
+  </table>
+</body>
+</html>`;
+      return code;
+    }
+    
+    function copyCode() {
+      const code = document.getElementById('codeOutput').textContent;
+      navigator.clipboard.writeText(code);
+      alert('✅ 代码已复制!');
+    }
+    
+    function exportHTML() {
+      const code = document.getElementById('codeOutput').textContent;
+      const blob = new Blob([code], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'video-table.html';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (Array.isArray(data)) {
+            document.getElementById('tableData').value = JSON.stringify(data, null, 2);
+            updatePreview();
+          }
+        } catch (err) {
+          alert('文件格式错误');
+        }
+      };
+      reader.readAsText(file);
+    }
+    
+    // 初始化
+    updatePreview();
+  </script>
+</body>
+</html>

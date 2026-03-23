@@ -3,106 +3,226 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Video PPT Tools - 工具箱</title>
+  <title>🎬 视频生成工具箱 v2.0</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
-    .container { max-width: 1200px; margin: 0 auto; }
-    header { text-align: center; color: white; padding: 40px 0; }
-    header h1 { font-size: 2.5rem; margin-bottom: 10px; }
-    .tools-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-      margin-top: 30px;
-    }
+    body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%); min-height: 100vh; }
+    
+    header { text-align: center; padding: 50px 20px; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.1); }
+    header h1 { font-size: 3rem; background: linear-gradient(135deg, #667eea, #764ba2, #feca57); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 15px; }
+    header p { color: rgba(255,255,255,0.6); font-size: 1.2rem; }
+    
+    .container { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
+    
+    /* 分类标题 */
+    .section-title { color: #48dbfb; font-size: 1.5rem; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 2px solid rgba(72,219,251,0.3); display: flex; align-items: center; gap: 10px; }
+    
+    /* 工具网格 */
+    .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    
     .tool-card {
-      background: white;
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: 20px;
       padding: 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      transition: all 0.3s ease;
       cursor: pointer;
+      transition: all 0.3s ease;
       text-decoration: none;
       color: inherit;
       display: block;
     }
+    
     .tool-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(102,126,234,0.5);
+      box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
     }
+    
     .tool-icon { font-size: 3rem; margin-bottom: 15px; }
-    .tool-card h2 { color: #667eea; font-size: 1.5rem; margin-bottom: 10px; }
-    .tool-card p { color: #666; line-height: 1.6; margin-bottom: 15px; }
-    .feature-tag {
-      display: inline-block;
-      padding: 5px 12px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border-radius: 15px;
-      font-size: 0.8rem;
-      margin-right: 5px;
-      margin-bottom: 5px;
-    }
+    .tool-card h2 { color: white; font-size: 1.4rem; margin-bottom: 10px; }
+    .tool-card p { color: rgba(255,255,255,0.6); line-height: 1.6; margin-bottom: 15px; font-size: 0.95rem; }
+    
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag { padding: 5px 12px; background: rgba(102,126,234,0.2); color: #48dbfb; border-radius: 15px; font-size: 0.8rem; }
+    .tag-new { background: rgba(254,202,87,0.2); color: #feca57; }
+    
+    /* 快捷入口 */
+    .quick-actions { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 20px; }
+    .quick-btn { padding: 20px; background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2)); border: 1px solid rgba(102,126,234,0.3); border-radius: 15px; color: white; cursor: pointer; transition: all 0.2s; text-align: center; text-decoration: none; }
+    .quick-btn:hover { background: linear-gradient(135deg, rgba(102,126,234,0.4), rgba(118,75,162,0.4)); transform: scale(1.02); }
+    .quick-btn .icon { font-size: 1.5rem; margin-bottom: 8px; }
+    .quick-btn .label { font-size: 0.95rem; }
+    
+    /* 底部信息 */
+    footer { text-align: center; padding: 40px; color: rgba(255,255,255,0.4); border-top: 1px solid rgba(255,255,255,0.05); margin-top: 60px; }
+    footer a { color: #48dbfb; text-decoration: none; }
   </style>
 </head>
 <body>
+  <header>
+    <h1>🎬 视频生成工具箱</h1>
+    <p>小说视频 · 新闻视频 · PPT制作 · 图表统计 · 动画特效</p>
+  </header>
+  
   <div class="container">
-    <header>
-      <h1>🎬 Video PPT Tools</h1>
-      <p>可视化视频 PPT 制作工具集</p>
-    </header>
+    <!-- 快速入口 -->
+    <h2 class="section-title">⚡ 快速开始</h2>
+    <div class="quick-actions">
+      <a href="ppt-studio.html" class="quick-btn">
+        <div class="icon">🎨</div>
+        <div class="label">PPT工作室</div>
+      </a>
+      <a href="chart-generator.html" class="quick-btn">
+        <div class="icon">📊</div>
+        <div class="label">图表生成器</div>
+      </a>
+      <a href="table-generator.html" class="quick-btn">
+        <div class="icon">📋</div>
+        <div class="label">表格生成器</div>
+      </a>
+      <a href="stats-generator.html" class="quick-btn">
+        <div class="icon">📈</div>
+        <div class="label">统计卡片</div>
+      </a>
+      <a href="animation-editor.html" class="quick-btn">
+        <div class="icon">✨</div>
+        <div class="label">动画编辑器</div>
+      </a>
+    </div>
     
+    <!-- PPT制作 -->
+    <h2 class="section-title">🎨 PPT制作模块</h2>
     <div class="tools-grid">
-      <a href="chart-generator.html" class="tool-card">
-        <div class="tool-icon">📊</div>
-        <h2>图表生成器</h2>
-        <p>创建柱状图、折线图、饼图，实时预览</p>
-        <div>
-          <span class="feature-tag">柱状图</span>
-          <span class="feature-tag">折线图</span>
-          <span class="feature-tag">饼图</span>
+      <a href="ppt-studio.html" class="tool-card">
+        <div class="tool-icon">🎨</div>
+        <h2>PPT工作室 ⭐</h2>
+        <p>可视化制作演示文稿，支持封面、内容、图表、表格等多种页面类型，导出HTML直接用于视频</p>
+        <div class="tags">
+          <span class="tag">可视化编辑</span>
+          <span class="tag">实时预览</span>
+          <span class="tag tag-new">推荐</span>
         </div>
       </a>
       
       <a href="animation-editor.html" class="tool-card">
         <div class="tool-icon">✨</div>
         <h2>动画编辑器</h2>
-        <p>12 种动画效果，可视化编辑</p>
-        <div>
-          <span class="feature-tag">12+ 动画</span>
-          <span class="feature-tag">时间轴</span>
-          <span class="feature-tag">实时预览</span>
+        <p>15+种动画效果，可视化时间轴控制，导出CSS动画代码</p>
+        <div class="tags">
+          <span class="tag">15+动画</span>
+          <span class="tag">时间轴</span>
+        </div>
+      </a>
+    </div>
+    
+    <!-- 数据展示 -->
+    <h2 class="section-title">📊 数据展示模块</h2>
+    <div class="tools-grid">
+      <a href="chart-generator.html" class="tool-card">
+        <div class="tool-icon">📊</div>
+        <h2>图表生成器</h2>
+        <p>柱状图、折线图、饼图制作，Chart.js驱动，导出配置代码</p>
+        <div class="tags">
+          <span class="tag">Chart.js</span>
+          <span class="tag">柱状图</span>
+          <span class="tag">折线图</span>
+          <span class="tag">饼图</span>
         </div>
       </a>
       
       <a href="stats-generator.html" class="tool-card">
         <div class="tool-icon">📈</div>
         <h2>统计卡片生成器</h2>
-        <p>美观的数据展示卡片</p>
-        <div>
-          <span class="feature-tag">4 种主题</span>
-          <span class="feature-tag">自定义</span>
-          <span class="feature-tag">实时预览</span>
+        <p>关键数据展示卡片，数字滚动动画，支持深色/科技/财经主题</p>
+        <div class="tags">
+          <span class="tag">4种主题</span>
+          <span class="tag">数字动画</span>
         </div>
       </a>
       
-      <a href="../preview/index.html" class="tool-card">
-        <div class="tool-icon">🎨</div>
-        <h2>素材库</h2>
-        <p>16 个免费素材网站</p>
-        <div>
-          <span class="feature-tag">视频</span>
-          <span class="feature-tag">图片</span>
-          <span class="feature-tag">音乐</span>
+      <a href="table-generator.html" class="tool-card">
+        <div class="tool-icon">📋</div>
+        <h2>视频表格生成器 <span class="tag tag-new">新</span></h2>
+        <p>专为视频场景优化的大字号、高对比度表格，支持JSON导入</p>
+        <div class="tags">
+          <span class="tag">视频优化</span>
+          <span class="tag">大字号</span>
+          <span class="tag tag-new">新功能</span>
         </div>
       </a>
     </div>
+    
+    <!-- 素材资源 -->
+    <h2 class="section-title">🖼️ 素材资源</h2>
+    <div class="tools-grid">
+      <a href="https://www.pexels.com/videos/" target="_blank" class="tool-card">
+        <div class="tool-icon">🎬</div>
+        <h2>Pexels Videos</h2>
+        <p>免费高清视频素材，可商用无需署名</p>
+        <div class="tags">
+          <span class="tag">免费商用</span>
+          <span class="tag">高清</span>
+        </div>
+      </a>
+      
+      <a href="https://unsplash.com/" target="_blank" class="tool-card">
+        <div class="tool-icon">🖼️</div>
+        <h2>Unsplash</h2>
+        <p>高质量免费图片，涵盖各类主题</p>
+        <div class="tags">
+          <span class="tag">免费商用</span>
+          <span class="tag">高清</span>
+        </div>
+      </a>
+      
+      <a href="https://pixabay.com/videos/" target="_blank" class="tool-card">
+        <div class="tool-icon">🎞️</div>
+        <h2>Pixabay</h2>
+        <p>视频、图片、音乐一站式免费素材库</p>
+        <div class="tags">
+          <span class="tag">综合素材</span>
+          <span class="tag">免费商用</span>
+        </div>
+      </a>
+    </div>
+    
+    <!-- 使用说明 -->
+    <h2 class="section-title">📖 使用流程</h2>
+    <div class="tools-grid">
+      <div class="tool-card">
+        <div class="tool-icon">1️⃣</div>
+        <h2>制作内容</h2>
+        <p>使用PPT工作室或直接编写HTML，创建演示文稿。确保每张幻灯片使用 .slide 类，尺寸1920×1080</p>
+      </div>
+      
+      <div class="tool-card">
+        <div class="tool-icon">2️⃣</div>
+        <h2>生成图表</h2>
+        <p>使用图表生成器、统计卡片、表格生成器创建数据可视化元素，复制HTML代码到幻灯片中</p>
+      </div>
+      
+      <div class="tool-card">
+        <div class="tool-icon">3️⃣</div>
+        <h2>截取截图</h2>
+        <p>用Playwright截取每张幻灯片为PNG图片，或用浏览器开发者工具截图</p>
+      </div>
+      
+      <div class="tool-card">
+        <div class="tool-icon">4️⃣</div>
+        <h2>合成视频</h2>
+        <p>使用 generate.py 脚本合成图片+配音为最终视频</p>
+        <div class="tags">
+          <span class="tag">python3 scripts/generate.py</span>
+        </div>
+      </div>
+    </div>
   </div>
+  
+  <footer>
+    <p>视频生成工具箱 v2.0 · <a href="../SKILL.md">查看完整文档</a></p>
+    <p style="margin-top:10px;font-size:0.85rem;">支持小说视频、新闻视频、PPT视频等多种场景</p>
+  </footer>
 </body>
 </html>

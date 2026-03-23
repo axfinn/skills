@@ -1,86 +1,52 @@
----
-name: model-switcher
-description: GrokSearch MCP 模型切换工具 - 支持 8 个主流 AI 模型一键切换
----
-
 # Model Switcher Skill
 
-GrokSearch MCP 模型切换工具，支持一键切换 AI 模型。
-
-## 支持的模型
-
-| 模型 | 说明 |
-|------|------|
-| qwen3.5-plus ⭐ | 通义千问 3.5 Plus - 平衡性能与速度 |
-| qwen3-max-2026-01-23 | 通义千问 3 Max - 最强推理 |
-| qwen3-coder-next | 通义千问 Coder Next - 代码优化 |
-| qwen3-coder-plus | 通义千问 Coder Plus - 专业编码 |
-| glm-5 | 智谱 GLM-5 - 深度思考 |
-| glm-4.7 | 智谱 GLM-4.7 - 经典版本 |
-| kimi-k2.5 | Kimi K2.5 - 长上下文理解 |
-| MiniMax-M2.5 | MiniMax M2.5 - 深度推理 |
+## 功能
+在 OpenClaw 对话框中提供模型选择功能，无需离开聊天界面。
 
 ## 使用方法
 
-### 通过 MCP 工具
+### 触发命令
+- "切换模型"
+- "更换模型"
+- "选择模型"
+- "当前用什么模型"
+- "列出可用模型"
 
-```python
-# 查看可用模型
-get_available_models()
+### 实现方式
 
-# 切换模型
-switch_model("qwen3.5-plus")
+1. **调用 MCP 工具获取模型列表**
+```
+调用：get_available_models
 ```
 
-### 通过对话
+2. **显示模型选择菜单**
+使用消息工具发送带按钮的消息（如果平台支持）
 
-直接告诉助手：
-- "切换到 qwen3.5-plus"
-- "帮我换成 glm-5"
-- "当前用什么模型？"
+3. **用户选择后切换**
+```
+调用：switch_model
+参数：{"model": "选择的模型 ID"}
+```
 
 ## MCP 工具
 
 ### get_available_models
-
-获取所有可用模型列表。
-
-**返回**:
-```json
-{
-  "status": "✅ 成功",
-  "provider": "ModelStudio (阿里云)",
-  "models": ["qwen3.5-plus", "glm-5", ...],
-  "count": 8,
-  "current_model": "glm-5"
-}
-```
+获取所有可用模型列表
 
 ### switch_model
+切换到指定模型
 
-切换到指定模型。
+## 支持的模型
 
-**参数**:
-- `model`: 模型 ID
-
-**返回**:
-```json
-{
-  "status": "✅ 成功",
-  "previous_model": "glm-5",
-  "current_model": "qwen3.5-plus",
-  "message": "模型已从 glm-5 切换到 qwen3.5-plus"
-}
-```
+- qwen3.5-plus ⭐
+- qwen3-max-2026-01-23
+- qwen3-coder-next
+- qwen3-coder-plus
+- glm-5
+- glm-4.7
+- kimi-k2.5
+- MiniMax-M2.5
 
 ## 配置文件
 
 `~/.config/grok-search/config.json`
-
-## 项目位置
-
-```
-/home/node/.openclaw/workspace/GrokSearch/
-```
-
-详细文档：`GrokSearch/MODEL_SWITCHING.md`

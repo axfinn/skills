@@ -1,0 +1,28 @@
+{
+  "title": "视频标题",
+  "author": "作者名",
+  "date": "2026-03-20",
+  
+  "video_config": {
+    "resolution": "1920x1080",
+    "fps": 30,
+    "video_codec": "libx264",
+    "audio_codec": "aac",
+    "audio_bitrate": "192k"
+  },
+  
+  "tts_config": {
+    "voice": "Meijia",
+    "sample_rate": 44100,
+    "bitrate": "192k"
+  },
+  
+  "segments": [
+    {
+      "id": "01_intro",
+      "text": "第一段文本内容...",
+      "slides": ["slide_001.png"],
+      "duration": 20
+    }
+  ]
+}

@@ -1,462 +1,320 @@
 /**
- * 素材管理工具库
- * 提供视频、音频、图片等素材的管理和使用
+ * 素材管理库 v2.0
+ * 免费可商用素材资源 + 智能下载管理工具
  */
 
 const Materials = {
-  // ==================== 素材网站资源 ====================
-  
-  /**
-   * 免费可商用素材网站
-   */
-  resources: {
-    // 视频素材
+  // 免费素材网站
+  sources: {
     video: [
-      {
-        name: 'Pexels Videos',
-        url: 'https://www.pexels.com/videos/',
-        desc: '免费高质量股票视频',
-        commercial: true,
-        attribution: false
-      },
-      {
-        name: 'Pixabay Videos',
-        url: 'https://pixabay.com/videos/',
-        desc: '免费视频和动画片段',
-        commercial: true,
-        attribution: false
-      },
-      {
-        name: 'Mixkit',
-        url: 'https://mixkit.co/free-stock-video/',
-        desc: '免费股票视频和转场',
-        commercial: true,
-        attribution: false
-      },
-      {
-        name: 'Coverr',
-        url: 'https://coverr.co/',
-        desc: '免费背景视频',
-        commercial: true,
-        attribution: false
-      },
-      {
-        name: 'Videezy',
-        url: 'https://www.videezy.com/',
-        desc: '免费和付费视频素材',
-        commercial: 'mixed',
-        attribution: 'required'
-      }
+      { name: 'Pexels Videos', url: 'https://www.pexels.com/videos/', free: true, attribution: false },
+      { name: 'Pixabay Videos', url: 'https://pixabay.com/videos/', free: true, attribution: false },
+      { name: 'Mixkit', url: 'https://mixkit.co/free-stock-video/', free: true, attribution: false },
+      { name: 'Coverr', url: 'https://coverr.co/', free: true, attribution: false },
+      { name: 'Videezy', url: 'https://www.videezy.com/', free: false, attribution: true }
     ],
-    
-    // 图片素材
     image: [
-      {
-        name: 'Unsplash',
-        url: 'https://unsplash.com/',
-        desc: '高质量免费图片',
-        commercial: true,
-        attribution: false
-      },
-      {
-        name: 'Pexels',
-        url: 'https://www.pexels.com/',
-        desc: '免费股票照片',
-        commercial: true,
-        attribution: false
-      },
-      {
-        name: 'Pixabay',
-        url: 'https://pixabay.com/',
-        desc: '免费图片和插画',
-        commercial: true,
-        attribution: false
-      },
-      {
-        name: 'Burst',
-        url: 'https://burst.shopify.com/',
-        desc: 'Shopify 免费图片库',
-        commercial: true,
-        attribution: false
-      }
+      { name: 'Unsplash', url: 'https://unsplash.com/', free: true, attribution: false },
+      { name: 'Pexels Photos', url: 'https://www.pexels.com/', free: true, attribution: false },
+      { name: 'Pixabay', url: 'https://pixabay.com/', free: true, attribution: false },
+      { name: 'Burst', url: 'https://burst.shopify.com/', free: true, attribution: false }
     ],
-    
-    // 音乐/音效
-    audio: [
-      {
-        name: 'YouTube Audio Library',
-        url: 'https://www.youtube.com/audiolibrary/',
-        desc: 'YouTube 免费音乐库',
-        commercial: true,
-        attribution: false
-      },
-      {
-        name: 'Bensound',
-        url: 'https://www.bensound.com/',
-        desc: '免费背景音乐',
-        commercial: 'mixed',
-        attribution: 'required'
-      },
-      {
-        name: 'Freesound',
-        url: 'https://freesound.org/',
-        desc: '免费音效库',
-        commercial: 'mixed',
-        attribution: 'varies'
-      },
-      {
-        name: 'Mixkit Music',
-        url: 'https://mixkit.co/free-stock-music/',
-        desc: '免费背景音乐',
-        commercial: true,
-        attribution: false
-      }
+    music: [
+      { name: 'YouTube Audio Library', url: 'https://www.youtube.com/audiolibrary/', free: true, attribution: false },
+      { name: 'Mixkit Music', url: 'https://mixkit.co/free-stock-music/', free: true, attribution: false },
+      { name: 'Bensound', url: 'https://www.bensound.com/', free: false, attribution: true }
     ],
-    
-    // 图标/插画
-    graphics: [
-      {
-        name: 'unDraw',
-        url: 'https://undraw.co/',
-        desc: '免费 SVG 插画',
-        commercial: true,
-        attribution: false
-      },
-      {
-        name: 'Flaticon',
-        url: 'https://www.flaticon.com/',
-        desc: '免费图标库',
-        commercial: 'mixed',
-        attribution: 'required'
-      },
-      {
-        name: 'IconFont',
-        url: 'https://www.iconfont.cn/',
-        desc: '阿里巴巴图标库',
-        commercial: true,
-        attribution: false
-      }
+    icons: [
+      { name: 'unDraw', url: 'https://undraw.co/', free: true, attribution: false },
+      { name: 'IconFont', url: 'https://www.iconfont.cn/', free: true, attribution: false }
     ]
   },
-  
-  // ==================== 素材下载工具 ====================
-  
-  /**
-   * 下载视频素材（使用 yt-dlp）
-   */
-  async downloadVideo(url, options = {}) {
-    const {
-      outputDir = './downloads',
-      format = 'mp4',
-      quality = 'best',
-      filename = null
-    } = options;
-    
-    const { exec } = require('child_process');
-    const { promisify } = require('util');
-    const execAsync = promisify(exec);
-    
-    const output = filename 
-      ? `${outputDir}/${filename}.%(ext)s`
-      : `${outputDir}/%(title)s.%(ext)s`;
-    
-    try {
-      await execAsync(`yt-dlp -f ${format} -o "${output}" "${url}"`);
-      return { success: true, path: output };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  },
-  
-  /**
-   * 从 Pexels 下载视频
-   */
-  async downloadFromPexels(searchQuery, options = {}) {
-    const {
-      limit = 5,
-      quality = 'hd',
-      orientation = 'landscape'
-    } = options;
-    
-    // Pexels API 需要 API key
-    const apiKey = process.env.PEXELS_API_KEY;
-    if (!apiKey) {
-      console.warn('需要设置 PEXELS_API_KEY 环境变量');
-      return [];
-    }
-    
-    const response = await fetch(
-      `https://api.pexels.com/videos/search?query=${encodeURIComponent(searchQuery)}&per_page=${limit}`,
-      {
-        headers: { 'Authorization': apiKey }
-      }
-    );
-    
-    const data = await response.json();
-    return data.videos.map(video => ({
-      id: video.id,
-      title: video.title,
-      duration: video.duration,
-      thumbnail: video.image,
-      downloadUrl: video.video_files.find(f => f.quality === quality)?.link
-    }));
-  },
-  
-  /**
-   * 从 Unsplash 下载图片
-   */
-  async downloadFromUnsplash(searchQuery, options = {}) {
-    const {
-      limit = 10,
-      orientation = 'landscape',
-      width = 1920,
-      height = 1080
-    } = options;
-    
-    const apiKey = process.env.UNSPLASH_API_KEY;
-    if (!apiKey) {
-      console.warn('需要设置 UNSPLASH_API_KEY 环境变量');
-      return [];
-    }
-    
-    const response = await fetch(
-      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(searchQuery)}&per_page=${limit}&orientation=${orientation}`,
-      {
-        headers: { 'Authorization': `Client-ID ${apiKey}` }
-      }
-    );
-    
-    const data = await response.json();
-    return data.results.map(photo => ({
-      id: photo.id,
-      title: photo.alt_description,
-      photographer: photo.user.name,
-      downloadUrl: photo.urls.regular,
-      fullUrl: `${photo.urls.raw}&w=${width}&h=${height}`
-    }));
-  },
-  
-  // ==================== 素材管理 ====================
-  
-  /**
-   * 素材库分类
-   */
+
+  // 主题分类关键词
   categories: {
-    // 财经类素材
     financial: [
-      'stock market', '股市', 'k line', 'candlestick',
-      'money', 'currency', 'bitcoin', 'cryptocurrency',
-      'bank', 'finance', 'trading', 'investment',
-      'chart', 'graph', 'data visualization',
-      'business', 'office', 'meeting', 'presentation'
+      'stock market', 'trading floor', 'finance', 'money', 'chart',
+      'graph', 'business', 'investment', 'banking', 'currency',
+      'k line', 'stock price', 'bull bear', 'wall street'
     ],
-    
-    // 科技类素材
     tech: [
-      'technology', 'computer', 'code', 'programming',
-      'ai', 'artificial intelligence', 'robot',
-      'data', 'server', 'cloud', 'network',
-      'smartphone', 'mobile', 'digital',
-      'futuristic', 'cyber', 'hologram'
+      'technology', 'artificial intelligence', 'robot', 'circuit',
+      'computer', 'data', 'coding', 'software', 'digital',
+      'server', 'chip', 'code', 'algorithm', 'cyber'
     ],
-    
-    // 自然类素材
     nature: [
-      'nature', 'landscape', 'mountain', 'ocean',
-      'forest', 'tree', 'flower', 'garden',
-      'sky', 'cloud', 'sunset', 'sunrise',
-      'water', 'river', 'lake', 'beach'
+      'nature', 'mountain', 'ocean', 'forest', 'landscape',
+      'sky', 'sunset', 'beach', 'river', 'waterfall',
+      'sunrise', 'clouds', 'trees'
     ],
-    
-    // 城市类素材
     city: [
-      'city', 'urban', 'building', 'skyscraper',
-      'street', 'traffic', 'night', 'downtown',
-      'architecture', 'bridge', 'park', 'square'
+      'city', 'building', 'architecture', 'street', 'urban',
+      'skyscraper', 'downtown', 'night city', 'bridge',
+      'traffic', 'office building'
     ],
-    
-    // 人物类素材
-    people: [
-      'people', 'business man', 'business woman',
-      'team', 'meeting', 'handshake', 'presentation',
-      'working', 'office', 'professional'
+    business: [
+      'business', 'meeting', 'office', 'corporate', 'team',
+      'presentation', 'handshake', 'professional', 'suit',
+      'work', 'conference'
     ],
-    
-    // 转场特效
-    transitions: [
-      'abstract', 'particle', 'light', 'gradient',
-      'blur', 'bokeh', 'geometric', 'pattern'
+    science: [
+      'science', 'laboratory', 'research', 'experiment', 'medical',
+      'chemistry', 'physics', 'DNA', 'microscope', 'test tube'
+    ],
+    news: [
+      'news', 'journalism', 'camera', 'reporter', 'broadcast',
+      'media', 'press', 'communication', 'microphone'
+    ],
+    novel: [
+      'abstract', 'artistic', 'creative', 'fantasy', 'dream',
+      'space', 'universe', 'particles', 'light effects', 'nebula',
+      'stars', 'galaxy'
     ]
   },
-  
-  /**
-   * 根据场景推荐素材关键词
-   */
-  getKeywordsForScene(scene) {
-    const sceneKeywords = {
-      'market_overview': ['stock market', 'trading floor', 'financial chart', 'bull bear'],
-      'economic_data': ['data visualization', 'chart', 'graph', 'statistics'],
-      'company_report': ['office building', 'corporate', 'business meeting', 'logo'],
-      'tech_analysis': ['technology', 'computer', 'code', 'digital'],
-      'conclusion': ['handshake', 'success', 'team', 'celebration']
-    };
-    
-    return sceneKeywords[scene] || [];
-  },
-  
-  // ==================== 素材处理工具 ====================
-  
-  /**
-   * 裁剪视频
-   */
-  async cropVideo(inputFile, outputFile, options = {}) {
-    const {
-      startTime = '00:00:00',
-      duration = '00:00:10',
-      width = 1920,
-      height = 1080
-    } = options;
-    
-    const { exec } = require('child_process');
-    const { promisify } = require('util');
-    const execAsync = promisify(exec);
-    
-    try {
-      await execAsync(
-        `ffmpeg -i "${inputFile}" -ss ${startTime} -t ${duration} ` +
-        `-vf "scale=${width}:${height}" -c:v libx264 -c:a aac "${outputFile}"`
-      );
-      return { success: true, path: outputFile };
-    } catch (error) {
-      return { success: false, error: error.message };
+
+  // 场景推荐素材
+  sceneRecommendations: {
+    market_overview: {
+      video: ['stock market', 'trading floor', 'financial district'],
+      image: ['stock chart', 'k line', 'money', 'finance building'],
+      keywords: ['stock market', 'trading', 'financial', 'k line']
+    },
+    economic_data: {
+      video: ['data visualization', 'chart animation', 'graph'],
+      image: ['chart', 'graph', 'statistics', 'infographic'],
+      keywords: ['data visualization', 'chart', 'graph', 'statistics']
+    },
+    tech_trend: {
+      video: ['technology', 'circuit', 'robotics', 'AI'],
+      image: ['technology', 'computer', 'digital', 'cyber'],
+      keywords: ['technology', 'AI', 'robot', 'digital', 'circuit']
+    },
+    company_intro: {
+      video: ['office', 'corporate', 'business meeting'],
+      image: ['office building', 'company logo', 'team'],
+      keywords: ['office', 'corporate', 'business', 'professional']
     }
   },
-  
+
   /**
-   * 调整视频大小
+   * 根据场景获取推荐关键词
    */
-  async resizeVideo(inputFile, outputFile, width = 1920, height = 1080) {
-    const { exec } = require('child_process');
-    const { promisify } = require('util');
-    const execAsync = promisify(exec);
-    
-    try {
-      await execAsync(
-        `ffmpeg -i "${inputFile}" -vf "scale=${width}:${height}" ` +
-        `-c:v libx264 -c:a aac "${outputFile}"`
-      );
-      return { success: true, path: outputFile };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  getKeywordsForScene(sceneName) {
+    const scene = this.sceneRecommendations[sceneName];
+    return scene ? scene.keywords : [];
   },
-  
+
   /**
-   * 视频转 GIF
-   */
-  async videoToGif(inputFile, outputFile, options = {}) {
-    const {
-      startTime = '00:00:00',
-      duration = '00:00:05',
-      width = 480,
-      fps = 10
-    } = options;
-    
-    const { exec } = require('child_process');
-    const { promisify } = require('util');
-    const execAsync = promisify(exec);
-    
-    try {
-      await execAsync(
-        `ffmpeg -i "${inputFile}" -ss ${startTime} -t ${duration} ` +
-        `-vf "fps=${fps},scale=${width}:-1:flags=lanczos" "${outputFile}"`
-      );
-      return { success: true, path: outputFile };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  },
-  
-  /**
-   * 提取视频帧
-   */
-  async extractFrames(inputFile, outputDir, options = {}) {
-    const {
-      interval = 1,  // 每隔多少秒提取一帧
-      format = 'png',
-      quality = 2
-    } = options;
-    
-    const { exec } = require('child_process');
-    const { promisify } = require('util');
-    const execAsync = promisify(exec);
-    
-    const outputPattern = `${outputDir}/frame_%03d.${format}`;
-    
-    try {
-      await execAsync(
-        `ffmpeg -i "${inputFile}" -vf "fps=1/${interval}" -q:v ${quality} "${outputPattern}"`
-      );
-      return { success: true, path: outputPattern };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  },
-  
-  /**
-   * 生成缩略图
-   */
-  async generateThumbnail(videoFile, outputFile, time = '00:00:01') {
-    const { exec } = require('child_process');
-    const { promisify } = require('util');
-    const execAsync = promisify(exec);
-    
-    try {
-      await execAsync(
-        `ffmpeg -i "${videoFile}" -ss ${time} -vframes 1 ` +
-        `-vf "scale=320:180" "${outputFile}"`
-      );
-      return { success: true, path: outputFile };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  },
-  
-  // ==================== 素材使用建议 ====================
-  
-  /**
-   * 根据内容类型推荐素材
+   * 推荐素材（按内容类型）
    */
   recommendMaterials(contentType) {
     const recommendations = {
       '财经新闻': {
-        video: ['stock market', 'trading', 'financial district'],
-        image: ['chart', 'graph', 'money'],
-        music: ['corporate', 'upbeat', 'professional']
+        video: ['stock market', 'trading', 'financial district', 'chart animation'],
+        image: ['chart', 'graph', 'money', 'finance', 'stock'],
+        music: ['corporate', 'upbeat', 'professional', 'news']
       },
       '科技评测': {
-        video: ['technology', 'computer', 'gadget'],
-        image: ['circuit', 'chip', 'digital'],
-        music: ['electronic', 'modern', 'tech']
+        video: ['technology', 'computer', 'smartphone', 'gadget'],
+        image: ['technology', 'circuit', 'chip', 'digital', 'code'],
+        music: ['electronic', 'modern', 'tech', 'energetic']
       },
-      '旅游视频': {
-        video: ['landscape', 'travel', 'nature'],
-        image: ['destination', 'landmark', 'scenic'],
-        music: ['ambient', 'relaxing', 'world']
+      '旅游vlog': {
+        video: ['travel', 'landscape', 'adventure'],
+        image: ['landscape', 'mountain', 'ocean', 'city'],
+        music: ['travel', 'adventure', 'uplifting', 'tropical']
       },
-      '教育课程': {
-        video: ['classroom', 'teacher', 'student'],
-        image: ['book', 'education', 'learning'],
-        music: ['calm', 'focus', 'inspirational']
+      '美食教程': {
+        video: ['food', 'cooking', 'kitchen'],
+        image: ['food', 'restaurant', 'ingredients'],
+        music: ['cooking', 'upbeat', 'warm']
+      },
+      '小说朗读': {
+        video: ['abstract', 'artistic', 'particles'],
+        image: ['abstract', 'fantasy', 'creative', 'dream'],
+        music: ['ambient', 'calm', 'atmospheric']
       }
     };
-    
-    return recommendations[contentType] || {};
+
+    return recommendations[contentType] || recommendations['财经新闻'];
   },
-  
+
   /**
-   * 素材使用最佳实践
+   * 生成搜索URL
    */
+  getSearchUrl(platform, keywords) {
+    const query = encodeURIComponent(keywords.join(' '));
+    const urls = {
+      pexels: `https://www.pexels.com/search/videos/${query}/`,
+      unsplash: `https://unsplash.com/s/photos/${query}`,
+      pixabay: `https://pixabay.com/videos/search/${query}/`,
+      youtube: `https://www.youtube.com/results?search_query=${query}`
+    };
+    return urls[platform] || urls.pexels;
+  },
+
+  /**
+   * 下载图片（使用 yt-dlp）
+   */
+  async downloadImage(url, options = {}) {
+    const { outputDir = './downloads', filename = 'image.jpg' } = options;
+    
+    try {
+      // 使用 fetch 下载
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const fs = require('fs');
+      const path = require('path');
+      
+      const outputPath = path.join(outputDir, filename);
+      fs.writeFileSync(outputPath, Buffer.from(await blob.arrayBuffer()));
+      
+      return { success: true, path: outputPath };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  },
+
+  /**
+   * 裁剪视频
+   */
+  async cropVideo(inputFile, outputFile, options = {}) {
+    const { startTime = '00:00:00', duration = 10, width = 1920, height = 1080 } = options;
+    
+    return new Promise((resolve, reject) => {
+      const { exec } = require('child_process');
+      const command = [
+        'ffmpeg', '-y',
+        '-i', inputFile,
+        '-ss', startTime,
+        '-t', duration.toString(),
+        '-vf', `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2`,
+        '-c:v', 'libx264',
+        '-preset', 'fast',
+        outputFile
+      ].join(' ');
+      
+      exec(command, (error, stdout, stderr) => {
+        if (error) reject({ success: false, error: stderr });
+        else resolve({ success: true, path: outputFile });
+      });
+    });
+  },
+
+  /**
+   * 调整视频大小
+   */
+  async resizeVideo(inputFile, outputFile, width, height) {
+    return this.cropVideo(inputFile, outputFile, { width, height, duration: 999, startTime: '00:00:00' });
+  },
+
+  /**
+   * 视频转GIF
+   */
+  async videoToGif(inputFile, outputGif, options = {}) {
+    const { startTime = '00:00:00', duration = 5, width = 480, fps = 10 } = options;
+    
+    return new Promise((resolve, reject) => {
+      const { exec } = require('child_process');
+      const command = [
+        'ffmpeg', '-y',
+        '-i', inputFile,
+        '-ss', startTime,
+        '-t', duration.toString(),
+        '-vf', `fps=${fps},scale=${width}:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse`,
+        '-loop', '0',
+        outputGif
+      ].join(' ');
+      
+      exec(command, (error) => {
+        if (error) reject({ success: false, error });
+        else resolve({ success: true, path: outputGif });
+      });
+    });
+  },
+
+  /**
+   * 提取视频帧
+   */
+  async extractFrames(inputFile, outputDir, options = {}) {
+    const { interval = 1, format = 'png' } = options;
+    
+    return new Promise((resolve, reject) => {
+      const { exec } = require('child_process');
+      const outputPattern = `${outputDir}/frame_%04d.${format}`;
+      const command = [
+        'ffmpeg', '-y',
+        '-i', inputFile,
+        '-vf', `fps=1/${interval}`,
+        '-q:v', '2',
+        outputPattern
+      ].join(' ');
+      
+      exec(command, (error) => {
+        if (error) reject({ success: false, error });
+        else resolve({ success: true, outputDir });
+      });
+    });
+  },
+
+  /**
+   * 生成缩略图
+   */
+  async generateThumbnail(inputFile, outputThumb, time = '00:00:01') {
+    return new Promise((resolve, reject) => {
+      const { exec } = require('child_process');
+      const command = [
+        'ffmpeg', '-y',
+        '-i', inputFile,
+        '-ss', time,
+        '-vframes', '1',
+        '-q:v', '2',
+        outputThumb
+      ].join(' ');
+      
+      exec(command, (error) => {
+        if (error) reject({ success: false, error });
+        else resolve({ success: true, path: outputThumb });
+      });
+    });
+  },
+
+  /**
+   * 批量下载主题图片
+   */
+  async downloadThemeImages(theme, count = 20, outputDir = './images') {
+    const keywords = this.categories[theme] || this.categories.novel;
+    const results = [];
+    
+    // 使用 Lorem Picsum（基于主题ID）
+    const themeIds = {
+      financial: [1092678, 1611976, 5703837, 6108813, 6447483],
+      tech: [1181263, 838573, 577585, 1181673, 576],
+
+      nature: [1049593, 156601, 15686, 1043844, 1281659],
+      city: [3771058, 1457187, 1453633, 373633, 321](),
+      novel: [1103970, 1103949, 1103950, 1171736, 1171056]
+    };
+    
+    const ids = themeIds[theme] || themeIds.novel;
+    
+    for (let i = 0; i < count; i++) {
+      const photoId = ids[i % ids.length];
+      const url = `https://picsum.photos/id/${photoId}/1920/1080`;
+      const filename = `theme_${i + 1}.jpg`;
+      
+      try {
+        const result = await this.downloadImage(url, { outputDir, filename });
+        results.push(result);
+      } catch (e) {
+        results.push({ success: false, error: e.message });
+      }
+    }
+    
+    return results;
+  },
+
+  // 最佳实践
   bestPractices: {
     video: [
       '使用 1080p 或更高分辨率',

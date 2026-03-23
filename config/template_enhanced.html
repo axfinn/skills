@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITLE}}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      overflow: hidden;
+      background: #000;
+    }
+    
+    .slide {
+      width: 1920px;
+      height: 1080px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 80px;
+      overflow: hidden;
+    }
+    
+    /* 标题幻灯片 */
+    .title-slide {
+      text-align: center;
+    }
+    
+    .main-title {
+      font-size: 5rem;
+      font-weight: bold;
+      margin-bottom: 30px;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    
+    .subtitle {
+      font-size: 2rem;
+      margin-bottom: 40px;
+    }
+    
+    .author-info {
+      font-size: 1.2rem;
+      margin-top: 60px;
+    }
+    
+    /* 章节幻灯片 */
+    .section-slide {
+      position: relative;
+    }
+    
+    .section-number {
+      position: absolute;
+      top: 50px;
+      right: 80px;
+      font-size: 10rem;
+      opacity: 0.15;
+      font-weight: bold;
+    }
+    
+    .section-title {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+    
+    .section-desc {
+      font-size: 1.5rem;
+    }
+    
+    /* 内容幻灯片 */
+    .content-slide {
+      align-items: flex-start;
+    }
+    
+    .slide-title {
+      font-size: 2.5rem;
+      margin-bottom: 40px;
+      align-self: flex-start;
+    }
+    
+    .content-list {
+      list-style: none;
+      width: 100%;
+    }
+    
+    .content-list li {
+      font-size: 1.5rem;
+      padding: 15px 0;
+      padding-left: 30px;
+      position: relative;
+      line-height: 1.6;
+    }
+    
+    .content-list li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: currentColor;
+    }
+    
+    /* 统计幻灯片 */
+    .stats-slide .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      width: 100%;
+    }
+    
+    .stat-card {
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-10px);
+    }
+    
+    /* 时间轴幻灯片 */
+    .timeline-slide {
+      overflow-x: auto;
+    }
+    
+    .timeline {
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+      width: 100%;
+    }
+    
+    .timeline-item {
+      position: relative;
+      min-width: 250px;
+    }
+    
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: currentColor;
+      transform: translateX(-50%);
+    }
+    
+    /* 引用幻灯片 */
+    .quote-slide .quote-box {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .quote-text {
+      line-height: 1.8;
+    }
+    
+    /* 对比幻灯片 */
+    .comparison-slide .comparison-left,
+    .comparison-slide .comparison-right {
+      padding: 40px;
+    }
+    
+    .comparison-left ul,
+    .comparison-right ul {
+      list-style: none;
+    }
+    
+    .comparison-left li,
+    .comparison-right li {
+      padding: 10px 0;
+      padding-left: 25px;
+      position: relative;
+    }
+    
+    .comparison-left li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: inherit;
+    }
+    
+    /* 结尾幻灯片 */
+    .conclusion-box {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .conclusion-box ul {
+      list-style: none;
+    }
+    
+    .conclusion-box li {
+      padding: 15px 0;
+      padding-left: 40px;
+      position: relative;
+    }
+    
+    .conclusion-box li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+    }
+    
+    /* 结束幻灯片 */
+    .end-slide {
+      text-align: center;
+    }
+    
+    .end-title {
+      font-size: 5rem;
+      font-weight: bold;
+    }
+    
+    .end-subtext {
+      font-size: 2rem;
+    }
+    
+    /* 动画类 */
+    .animate-in {
+      opacity: 0;
+      animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    @keyframes bounceIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.3);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      70% {
+        transform: scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    @keyframes particleFloat {
+      0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) translateX(50px);
+        opacity: 0;
+      }
+    }
+    
+    /* 粒子背景 */
+    .particle-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .particle-bg div {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      animation: particleFloat 5s linear infinite;
+    }
+    
+    /* 图表容器 */
+    .chart-container {
+      width: 100%;
+      max-width: 1400px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 15px;
+      padding: 40px;
+    }
+    
+    /* 响应式调整 */
+    @media (max-width: 1920px) {
+      .slide {
+        transform-origin: center center;
+      }
+    }
+  </style>
+  
+  <!-- 引入工具库 -->
+  <script src="./lib/animations.js"></script>
+  <script src="./lib/templates.js"></script>
+  <script src="./lib/utils.js"></script>
+  <script src="./lib/config.js"></script>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <!-- 幻灯片内容 -->
+  {{SLIDES}}
+  
+  <script>
+    // 初始化动画
+    document.addEventListener('DOMContentLoaded', function() {
+      // 为所有幻灯片添加动画
+      const slides = document.querySelectorAll('.slide');
+      slides.forEach((slide, index) => {
+        slide.style.opacity = '0';
+        setTimeout(() => {
+          slide.style.transition = 'opacity 0.5s ease';
+          slide.style.opacity = '1';
+        }, index * 100);
+      });
+      
+      // 创建粒子效果
+      const titleSlides = document.querySelectorAll('.title-slide');
+      titleSlides.forEach(slide => {
+        const particleBg = slide.querySelector('.particle-bg');
+        if (particleBg) {
+          Animations.createParticles(particleBg, {
+            count: 30,
+            color: 'rgba(255,255,255,0.3)',
+            size: 4
+          });
+        }
+      });
+      
+      // 自动动画列表
+      const lists = document.querySelectorAll('.content-list');
+      lists.forEach(list => {
+        Animations.staggerList(list, {
+          animation: 'fadeInUp',
+          delayBetween: 0.2
+        });
+      });
+      
+      // 统计卡片动画
+      const statCards = document.querySelectorAll('.stat-card');
+      statCards.forEach((card, index) => {
+        setTimeout(() => {
+          Animations.scaleIn(card, {
+            from: 0.8,
+            duration: 0.6
+          });
+        }, index * 200);
+      });
+    });
+  </script>
+</body>
+</html>

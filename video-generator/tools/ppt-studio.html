@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎨 PPT工作室 v2.0</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; }
+    
+    header { background: rgba(0,0,0,0.3); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    header h1 { color: white; font-size: 1.5rem; }
+    header h1 span { background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    
+    .toolbar { display: flex; gap: 10px; }
+    .toolbar button { padding: 8px 16px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+    .toolbar button:hover { background: rgba(255,255,255,0.2); }
+    .toolbar button.primary { background: linear-gradient(135deg, #667eea, #764ba2); border: none; }
+    
+    .main-container { display: grid; grid-template-columns: 250px 1fr 300px; height: calc(100vh - 60px); }
+    
+    /* 左侧工具栏 */
+    .sidebar { background: rgba(0,0,0,0.2); padding: 20px; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.1); }
+    .sidebar h3 { color: #48dbfb; font-size: 0.9rem; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+    
+    .slide-type { display: flex; flex-direction: column; gap: 8px; margin-bottom: 25px; }
+    .slide-type button { padding: 12px 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; text-align: left; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
+    .slide-type button:hover { background: rgba(102,126,234,0.3); border-color: #667eea; }
+    .slide-type button .icon { margin-right: 8px; }
+    
+    /* 缩略图列表 */
+    .slides-nav { display: flex; flex-direction: column; gap: 8px; }
+    .slide-thumb { width: 100%; aspect-ratio: 16/9; background: rgba(255,255,255,0.05); border: 2px solid transparent; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.5); font-size: 0.8rem; transition: all 0.2s; }
+    .slide-thumb:hover { border-color: rgba(255,255,255,0.3); }
+    .slide-thumb.active { border-color: #48dbfb; background: rgba(72,219,251,0.1); }
+    .slide-thumb .num { position: relative; top: -30px; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; }
+    
+    /* 画布区 */
+    .canvas-area { background: #0a0a1a; display: flex; align-items: center; justify-content: center; padding: 30px; overflow: auto; }
+    .canvas-frame { width: 960px; height: 540px; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 10px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); position: relative; overflow: hidden; transform: scale(0.9); }
+    .canvas-frame iframe { width: 100%; height: 100%; border: none; }
+    
+    /* 右侧属性面板 */
+    .properties { background: rgba(0,0,0,0.2); padding: 20px; overflow-y: auto; border-left: 1px solid rgba(255,255,255,0.1); }
+    .properties h3 { color: #48dbfb; font-size: 0.9rem; margin-bottom: 15px; }
+    
+    .prop-group { margin-bottom: 20px; }
+    .prop-group label { display: block; color: rgba(255,255,255,0.7); font-size: 0.8rem; margin-bottom: 6px; }
+    .prop-group input, .prop-group select, .prop-group textarea { width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 0.9rem; }
+    .prop-group textarea { min-height: 80px; resize: vertical; }
+    
+    .color-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+    .color-swatch { width: 30px; height: 30px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+    .color-swatch:hover, .color-swatch.active { border-color: white; transform: scale(1.1); }
+    
+    .bullet-editor { display: flex; flex-direction: column; gap: 8px; }
+    .bullet-item { display: flex; gap: 8px; }
+    .bullet-item input { flex: 1; }
+    .bullet-item button { padding: 8px 12px; background: rgba(255,107,107,0.3); border: none; border-radius: 6px; color: white; cursor: pointer; }
+    
+    /* 主题预设 */
+    .theme-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .theme-preset { padding: 15px; border-radius: 10px; cursor: pointer; text-align: center; font-size: 0.85rem; transition: all 0.2s; border: 2px solid transparent; }
+    .theme-preset:hover { transform: scale(1.02); }
+    .theme-preset.active { border-color: #48dbfb; }
+    .theme-dark { background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; }
+    .theme-tech { background: linear-gradient(135deg, #0f0c29, #302b63); color: white; }
+    .theme-money { background: linear-gradient(135deg, #1a472a, #2d5a3d); color: white; }
+    .theme-minimal { background: #2d3436; color: white; }
+    
+    /* 导出面板 */
+    .export-options { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+    .export-options button { padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .export-html { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; }
+    .export-pdf { background: #ff6b6b; color: white; border: none; }
+    .export-images { background: #1dd1a1; color: white; border: none; }
+    
+    /* 幻灯片内容样式 */
+    .slide-content { padding: 50px; height: 100%; display: flex; flex-direction: column; }
+    .slide-title { font-size: 2.5rem; color: #ff6b6b; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 3px solid #ff6b6b; }
+    .slide-subtitle { font-size: 1.5rem; color: #48dbfb; margin-bottom: 40px; }
+    .slide-bullets { list-style: none; font-size: 1.3rem; line-height: 2.2; flex: 1; }
+    .slide-bullets li { padding-left: 30px; position: relative; margin-bottom: 15px; }
+    .slide-bullets li::before { content: '▸'; position: absolute; left: 0; color: #48dbfb; }
+    
+    .cover-slide { text-align: center; justify-content: center; align-items: center; }
+    .cover-slide .main-title { font-size: 3.5rem; background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 30px; }
+    .cover-slide .author { font-size: 1.3rem; color: rgba(255,255,255,0.7); margin-top: 40px; }
+    
+    .end-slide { text-align: center; justify-content: center; align-items: center; }
+    .end-slide .thanks { font-size: 4rem; color: #feca57; }
+    .end-slide .contact { font-size: 1.2rem; color: rgba(255,255,255,0.6); margin-top: 30px; }
+    
+    /* 动画效果 */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    
+    .anim-fadeInUp { animation: fadeInUp 0.6s ease forwards; }
+    .anim-scaleIn { animation: scaleIn 0.5s ease forwards; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎨 PPT<span>工作室</span></h1>
+    <div class="toolbar">
+      <button onclick="addSlide('content')">➕ 添加页面</button>
+      <button onclick="duplicateSlide()">📑 复制</button>
+      <button onclick="deleteSlide()">🗑️ 删除</button>
+      <button class="primary" onclick="exportPresentation()">💾 导出</button>
+    </div>
+  </header>
+  
+  <div class="main-container">
+    <!-- 左侧工具 -->
+    <div class="sidebar">
+      <h3>📄 页面类型</h3>
+      <div class="slide-type">
+        <button onclick="addSlide('cover')"><span class="icon">🎬</span> 封面</button>
+        <button onclick="addSlide('content')"><span class="icon">📝</span> 内容页</button>
+        <button onclick="addSlide('chart')"><span class="icon">📊</span> 图表页</button>
+        <button onclick="addSlide('table')"><span class="icon">📋</span> 表格页</button>
+        <button onclick="addSlide('stats')"><span class="icon">📈</span> 统计页</button>
+        <button onclick="addSlide('quote')"><span class="icon">💬</span> 引用页</button>
+        <button onclick="addSlide('end')"><span class="icon">👋</span> 结束页</button>
+      </div>
+      
+      <h3>📑 页面列表</h3>
+      <div class="slides-nav" id="slidesNav"></div>
+    </div>
+    
+    <!-- 画布 -->
+    <div class="canvas-area">
+      <div class="canvas-frame">
+        <iframe id="previewFrame"></iframe>
+      </div>
+    </div>
+    
+    <!-- 右侧属性 -->
+    <div class="properties">
+      <h3>⚙️ 页面属性</h3>
+      
+      <div class="prop-group">
+        <label>页面标题</label>
+        <input type="text" id="propTitle" placeholder="标题" oninput="updateCurrentSlide()">
+      </div>
+      
+      <div class="prop-group">
+        <label>副标题</label>
+        <input type="text" id="propSubtitle" placeholder="副标题" oninput="updateCurrentSlide()">
+      </div>
+      
+      <div class="prop-group">
+        <label>背景颜色</label>
+        <div class="color-picker">
+          <div class="color-swatch active" style="background:#1a1a2e" onclick="setBgColor('#1a1a2e')"></div>
+          <div class="color-swatch" style="background:#0f0c29" onclick="setBgColor('#0f0c29')"></div>
+          <div class="color-swatch" style="background:#1a472a" onclick="setBgColor('#1a472a')"></div>
+          <div class="color-swatch" style="background:#2d3436" onclick="setBgColor('#2d3436')"></div>
+          <div class="color-swatch" style="background:#0a0a1a" onclick="setBgColor('#0a0a1a')"></div>
+          <div class="color-swatch" style="background:linear-gradient(135deg,#667eea,#764ba2)" onclick="setBgColor('gradient')"></div>
+        </div>
+      </div>
+      
+      <div class="prop-group" id="bulletsGroup">
+        <label>要点内容 (每行一条)</label>
+        <textarea id="propBullets" placeholder="要点1&#10;要点2&#10;要点3" oninput="updateCurrentSlide()"></textarea>
+      </div>
+      
+      <div class="prop-group" id="authorGroup" style="display:none;">
+        <label>作者/来源</label>
+        <input type="text" id="propAuthor" placeholder="作者名" oninput="updateCurrentSlide()">
+      </div>
+      
+      <div class="prop-group" id="endTextGroup" style="display:none;">
+        <label>结束语</label>
+        <input type="text" id="propEndText" value="谢谢观看" oninput="updateCurrentSlide()">
+      </div>
+      
+      <div class="prop-group">
+        <label>主题预设</label>
+        <div class="theme-presets">
+          <div class="theme-preset theme-dark active" onclick="applyTheme('dark')">深色</div>
+          <div class="theme-preset theme-tech" onclick="applyTheme('tech')">科技</div>
+          <div class="theme-preset theme-money" onclick="applyTheme('money')">财经</div>
+          <div class="theme-preset theme-minimal" onclick="applyTheme('minimal')">简约</div>
+        </div>
+      </div>
+      
+      <div class="export-options">
+        <button class="export-html" onclick="exportHTML()">📄 导出 HTML</button>
+        <button class="export-images" onclick="exportImages()">🖼️ 导出图片</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // 幻灯片数据
+    let slides = [
+      { type: 'cover', title: '演示标题', subtitle: '副标题', bgColor: '#1a1a2e', author: '作者' },
+      { type: 'content', title: '核心观点', subtitle: '', bgColor: '#1a1a2e', bullets: ['观点一：内容简介', '观点二：内容简介', '观点三：内容简介'] },
+      { type: 'end', title: '', subtitle: '', bgColor: '#1a1a2e', endText: '谢谢观看' }
+    ];
+    
+    let currentSlideIndex = 0;
+    
+    // 渲染缩略图
+    function renderSlidesNav() {
+      const nav = document.getElementById('slidesNav');
+      nav.innerHTML = slides.map((slide, i) => `
+        <div class="slide-thumb ${i === currentSlideIndex ? 'active' : ''}" onclick="selectSlide(${i})">
+          ${slide.type === 'cover' ? '🎬' : slide.type === 'content' ? '📝' : slide.type === 'end' ? '👋' : '📊'}
+          <span class="num">${i + 1}</span>
+        </div>
+      `).join('');
+    }
+    
+    // 选择幻灯片
+    function selectSlide(index) {
+      currentSlideIndex = index;
+      renderSlidesNav();
+      loadSlideProperties();
+      renderPreview();
+    }
+    
+    // 加载属性
+    function loadSlideProperties() {
+      const slide = slides[currentSlideIndex];
+      document.getElementById('propTitle').value = slide.title || '';
+      document.getElementById('propSubtitle').value = slide.subtitle || '';
+      document.getElementById('propBullets').value = (slide.bullets || []).join('\n');
+      document.getElementById('propAuthor').value = slide.author || '';
+      document.getElementById('propEndText').value = slide.endText || '谢谢观看';
+      
+      // 显示/隐藏相关字段
+      document.getElementById('bulletsGroup').style.display = ['content', 'chart', 'table', 'stats'].includes(slide.type) ? 'block' : 'none';
+      document.getElementById('authorGroup').style.display = slide.type === 'cover' ? 'block' : 'none';
+      document.getElementById('endTextGroup').style.display = slide.type === 'end' ? 'block' : 'none';
+    }
+    
+    // 更新当前幻灯片
+    function updateCurrentSlide() {
+      const slide = slides[currentSlideIndex];
+      slide.title = document.getElementById('propTitle').value;
+      slide.subtitle = document.getElementById('propSubtitle').value;
+      slide.author = document.getElementById('propAuthor').value;
+      slide.endText = document.getElementById('propEndText').value;
+      slide.bullets = document.getElementById('propBullets').value.split('\n').filter(b => b.trim());
+      renderPreview();
+    }
+    
+    // 设置背景色
+    function setBgColor(color) {
+      slides[currentSlideIndex].bgColor = color;
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+      event.target.classList.add('active');
+      renderPreview();
+    }
+    
+    // 应用主题
+    function applyTheme(theme) {
+      const themeColors = { dark: '#1a1a2e', tech: '#0f0c29', money: '#1a472a', minimal: '#2d3436' };
+      slides[currentSlideIndex].bgColor = themeColors[theme];
+      renderPreview();
+      document.querySelectorAll('.theme-preset').forEach(p => p.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+    
+    // 添加幻灯片
+    function addSlide(type) {
+      const newSlide = {
+        type,
+        title: type === 'cover' ? '新标题' : (type === 'end' ? '' : '新页面'),
+        subtitle: '',
+        bgColor: '#1a1a2e',
+        bullets: ['要点一', '要点二'],
+        author: '',
+        endText: '谢谢观看'
+      };
+      slides.push(newSlide);
+      currentSlideIndex = slides.length - 1;
+      renderSlidesNav();
+      loadSlideProperties();
+      renderPreview();
+    }
+    
+    // 复制幻灯片
+    function duplicateSlide() {
+      const copy = { ...slides[currentSlideIndex], bullets: [...(slides[currentSlideIndex].bullets || [])] };
+      slides.push(copy);
+      currentSlideIndex = slides.length - 1;
+      renderSlidesNav();
+      loadSlideProperties();
+      renderPreview();
+    }
+    
+    // 删除幻灯片
+    function deleteSlide() {
+      if (slides.length <= 1) { alert('至少保留一页'); return; }
+      slides.splice(currentSlideIndex, 1);
+      currentSlideIndex = Math.max(0, currentSlideIndex - 1);
+      renderSlidesNav();
+      loadSlideProperties();
+      renderPreview();
+    }
+    
+    // 渲染预览
+    function renderPreview() {
+      const slide = slides[currentSlideIndex];
+      const bgStyle = slide.bgColor === 'gradient' 
+        ? 'linear-gradient(135deg, #667eea, #764ba2)'
+        : slide.bgColor;
+      
+      let contentHTML = '';
+      
+      if (slide.type === 'cover') {
+        contentHTML = `
+          <div class="slide-content cover-slide" style="background:${bgStyle}">
+            <h1 class="main-title anim-scaleIn">${slide.title || '标题'}</h1>
+            <p class="subtitle anim-fadeInUp" style="animation-delay:0.2s">${slide.subtitle || '副标题'}</p>
+            <p class="author anim-fadeInUp" style="animation-delay:0.4s">${slide.author || ''}</p>
+          </div>`;
+      } else if (slide.type === 'content') {
+        contentHTML = `
+          <div class="slide-content" style="background:${bgStyle}">
+            <h2 class="slide-title">${slide.title || '标题'}</h2>
+            ${slide.subtitle ? `<p class="slide-subtitle">${slide.subtitle}</p>` : ''}
+            <ul class="slide-bullets">
+              ${(slide.bullets || []).map((b, i) => `<li class="anim-fadeInUp" style="animation-delay:${i * 0.1}s">${b}</li>`).join('')}
+            </ul>
+          </div>`;
+      } else if (slide.type === 'end') {
+        contentHTML = `
+          <div class="slide-content end-slide" style="background:${bgStyle}">
+            <h1 class="thanks anim-scaleIn">${slide.endText || '谢谢观看'}</h1>
+          </div>`;
+      }
+      
+      const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; }
+  body { width: 960px; height: 540px; overflow: hidden; font-family: 'Microsoft YaHei', sans-serif; }
+</style>
+</head><body>${contentHTML}</body></html>`;
+      
+      document.getElementById('previewFrame').srcdoc = html;
+    }
+    
+    // 导出HTML
+    function exportPresentation() {
+      exportHTML();
+    }
+    
+    function exportHTML() {
+      let fullHTML = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>演示文稿</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Microsoft YaHei', sans-serif; background: #0a0a1a; color: white; }
+    .slide { width: 1920px; height: 1080px; padding: 80px 100px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+    .cover-slide { text-align: center; align-items: center; background: linear-gradient(135deg, #1a1a2e, #16213e); }
+    .main-title { font-size: 6rem; background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 40px; }
+    .slide-title { font-size: 4rem; color: #ff6b6b; margin-bottom: 50px; padding-bottom: 20px; border-bottom: 4px solid #ff6b6b; }
+    .slide-subtitle { font-size: 2.5rem; color: #48dbfb; margin-bottom: 60px; }
+    .slide-bullets { list-style: none; font-size: 2.2rem; line-height: 2.5; }
+    .slide-bullets li { padding-left: 40px; position: relative; margin-bottom: 25px; }
+    .slide-bullets li::before { content: '▸'; position: absolute; left: 0; color: #48dbfb; }
+    .end-slide { text-align: center; align-items: center; background: linear-gradient(135deg, #1a1a2e, #16213e); }
+    .thanks { font-size: 7rem; color: #feca57; }
+  </style>
+</head>
+<body>
+`;
+      
+      slides.forEach(slide => {
+        const bg = slide.bgColor === 'gradient' ? 'linear-gradient(135deg, #667eea, #764ba2)' : slide.bgColor;
+        
+        if (slide.type === 'cover') {
+          fullHTML += `  <div class="slide cover-slide" style="background:${bg}">
+    <h1 class="main-title">${slide.title}</h1>
+    <p class="slide-subtitle">${slide.subtitle}</p>
+    <p style="font-size:1.5rem;margin-top:60px;color:rgba(255,255,255,0.7)">${slide.author}</p>
+  </div>\n`;
+        } else if (slide.type === 'content') {
+          fullHTML += `  <div class="slide" style="background:${bg}">
+    <h2 class="slide-title">${slide.title}</h2>
+    ${slide.subtitle ? `<p class="slide-subtitle">${slide.subtitle}</p>` : ''}
+    <ul class="slide-bullets">${(slide.bullets || []).map(b => `<li>${b}</li>`).join('')}</ul>
+  </div>\n`;
+        } else if (slide.type === 'end') {
+          fullHTML += `  <div class="slide end-slide" style="background:${bg}">
+    <h1 class="thanks">${slide.endText}</h1>
+  </div>\n`;
+        }
+      });
+      
+      fullHTML += '</body></html>';
+      
+      const blob = new Blob([fullHTML], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'presentation.html';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    
+    function exportImages() {
+      alert('需要 Playwright 支持截取，请使用 HTML 导出后手动截图');
+    }
+    
+    // 初始化
+    renderSlidesNav();
+    loadSlideProperties();
+    renderPreview();
+  </script>
+</body>
+</html>
